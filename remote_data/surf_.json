@@ -1,4 +1,16 @@
 {
+    "surf_zts": {
+        "Tier": 1,
+        "Type": "Staged"
+    },
+    "surf_artois": {
+        "Tier": 1,
+        "Type": "Staged"
+    },
+    "surf_sweetness": {
+        "Tier": 1,
+        "Type": "Linear"
+    },
     "surf_newbie": {
         "Tier": 2,
         "Type": "Staged"
