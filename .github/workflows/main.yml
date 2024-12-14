@@ -1,11 +1,12 @@
-name: Build 和 Package
+name: Build and Package
 
 on:
   push:
     branches:
-      - dev
+      - main
   pull_request:
     branches:
+      - main
       - dev
 
 jobs:
@@ -29,6 +30,7 @@ jobs:
 
     - name: Copy additional files
       run: |
+        mkdir -p build/addons/counterstrikesharp/plugins/SharpTimer
         cp -r lang build/lang
         cp -r cfg/SharpTimer build/cfg
         cp -r addons/counterstrikesharp/plugins/SharpTimer build/addons/counterstrikesharp/plugins/SharpTimer
