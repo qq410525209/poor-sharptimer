@@ -30,7 +30,6 @@ jobs:
           --configuration Release \
           --runtime linux-x64 \
           --self-contained false \
-          --runtimes win-x86,win-x64,win-arm64,win,unix,osx-x64,linux-x64 \
           --output build/addons/counterstrikesharp/plugins/SharpTimer
 
     - name: Copy additional files
