@@ -32,6 +32,10 @@ jobs:
           --self-contained false \
           --output build/addons/counterstrikesharp/plugins/SharpTimer
 
+    - name: List build files
+      run: |
+        ls -R build
+
     - name: Copy additional files
       run: |
         mkdir -p build/cfg/SharpTimer
