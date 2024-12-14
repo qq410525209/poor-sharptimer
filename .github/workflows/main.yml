@@ -1,43 +1,73 @@
-name: Build and Package
+name: Build & Upload Release
 
 on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version Number (ex. 1.0.0)."
+        default: "1.0.0"
+      description:
+        description: "Describe this release."
+        default: "CHANGEME"
 
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [windows-latest, ubuntu-24.04]
-        target: [win-x64, linux-x64] # 构建 Windows 和 Linux 两个版本
+    name: Build Solution
+    runs-on: ubuntu-latest
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v3
+    - name: Install .NET SDK 8.0
+      uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 8.0.x
+        dotnet-version: '8.0.x'
 
-    - name: Restore dependencies
-      run: dotnet restore SharpTimer.csproj
+    - name: Restore Dependencies
+      run: dotnet restore SharpTimer-main.sln
 
-    - name: Build
-      run: dotnet publish SharpTimer.csproj --configuration Release --runtime ${{ matrix.target }} --self-contained false --output build/${{ matrix.target }}
-
-    - name: Package as ZIP
+    - name: Build Solution
       run: |
-        zip -r SharpTimer-${{ matrix.target }}.zip build/${{ matrix.target }}
-      shell: bash
+        dotnet build SharpTimer-main.sln --configuration Release
 
-    - name: Upload artifact
+    - name: Create ZIP file
+      run: |
+        cd HookPlugin
+        mkdir -p addons/counterstrikesharp/plugins/SharpTimer
+        cp -r bin/Release/net8.0/* addons/counterstrikesharp/plugins/SharpTimer
+        cd addons/counterstrikesharp/plugins
+        zip -r ../../../HookPlugin-${{ github.event.inputs.version }}.zip SharpTimer
+
+
+
+    - name: Upload Release
       uses: actions/upload-artifact@v3
       with:
-        name: SharpTimer-${{ matrix.target }}
-        path: SharpTimer-${{ matrix.target }}.zip
+        name: release
+        path: SharpTimer/SharpTimer-${{ github.event.inputs.version }}.zip
+
+    - name: List contents of Release directory
+      run: ls -la SharpTimer
+
+    - name: Create Release
+      uses: actions/create-release@v1
+      id: create_release
+      with:
+        tag_name: ${{ github.event.inputs.version }}
+        release_name: ${{ github.event.inputs.version }}
+        body: ${{ github.event.inputs.description }}
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+
+    - name: Upload Release Asset
+      uses: actions/upload-release-asset@v1
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: SharpTimer/SharpTimer-${{ github.event.inputs.version }}.zip
+        asset_name: SharpTimer-${{ github.event.inputs.version }}.zip
+        asset_content_type: application/zip
+      env:
+        GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
