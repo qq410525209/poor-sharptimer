@@ -37,9 +37,9 @@ jobs:
         mkdir -p build/cfg/SharpTimer
         mkdir -p build/addons/counterstrikesharp/plugins/SharpTimer
         mkdir -p build/addons/counterstrikesharp/plugins/SharpTimer/lang
-        mkdir -p build/addons/counterstrikesharp/plugins/gamedata
+        mkdir -p build/addons/counterstrikesharp/gamedata
         cp -r lang/* build/addons/counterstrikesharp/plugins/SharpTimer/lang/
-        cp -r cfg/SharpTimer/stgamedata.json build/addons/counterstrikesharp/plugins/gamedata/
+        cp -r cfg/SharpTimer/stgamedata.json build/addons/counterstrikesharp/gamedata/
         cp -r cfg/SharpTimer/* build/cfg/SharpTimer/
 
 
