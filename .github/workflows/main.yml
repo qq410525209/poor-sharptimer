@@ -39,8 +39,9 @@ jobs:
         mkdir -p build/addons/counterstrikesharp/plugins/SharpTimer/lang
         mkdir -p build/addons/counterstrikesharp/plugins/SharpTimer/gamedata
         cp -r lang/* build/addons/counterstrikesharp/plugins/SharpTimer/lang/
-        cp -r cfg/SharpTimer/stgamedata.json build/addons/counterstrikesharp/plugins/gamedata/
+        cp -r cfg/SharpTimer/stgamedata.json build/addons/counterstrikesharp/plugins/SharpTimer/gamedata/
         cp -r cfg/SharpTimer/* build/cfg/SharpTimer/
+
 
         
     - name: Clean up old artifacts
