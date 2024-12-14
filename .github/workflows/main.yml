@@ -1,4 +1,4 @@
-name: Build 和 Package
+name: Build Package
 
 on:
   push:
@@ -34,11 +34,12 @@ jobs:
 
     - name: Copy additional files
       run: |
-        mkdir -p build/lang
         mkdir -p build/cfg/SharpTimer
         mkdir -p build/addons/counterstrikesharp/plugins/SharpTimer
         mkdir -p build/addons/counterstrikesharp/plugins/SharpTimer/lang
+        mkdir -p build/addons/counterstrikesharp/plugins/SharpTimer/gamedata
         cp -r lang/* build/addons/counterstrikesharp/plugins/SharpTimer/lang/
+        cp -r cfg/SharpTimer/stgamedata.json build/addons/counterstrikesharp/plugins/gamedata/
         cp -r cfg/SharpTimer/* build/cfg/SharpTimer/
 
         
