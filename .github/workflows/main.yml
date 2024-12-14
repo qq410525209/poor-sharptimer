@@ -1,4 +1,4 @@
-name: Build 和 Package
+name: Build and Package
 
 on:
   push:
@@ -25,20 +25,21 @@ jobs:
       run: dotnet restore SharpTimer.csproj
 
     - name: Build
-      run: dotnet publish SharpTimer.csproj --configuration Release --runtime linux-x64 --self-contained false --output build
-
+      run: dotnet publish SharpTimer.csproj \
+            --configuration Release \
+            --runtime linux-x64 \
+            --self-contained false \
+            --output build/addons/counterstrikesharp/plugins/SharpTimer
+            
+        
     - name: Copy additional files
       run: |
-        mkdir -p build/addons/counterstrikesharp/plugins/SharpTimer
         cp -r lang build/lang
-        cp -r cfg/SharpTimer build/cfg
-        cp -r addons/counterstrikesharp/plugins/SharpTimer build/addons/counterstrikesharp/plugins/SharpTimer
-      shell: bash
-
+        cp -r cfg/SharpTimer build/cfg/SharpTimer
+        
     - name: Clean up old artifacts
       run: |
-        rm -f SharpTimer-${{ github.ref_name }}.zip
-
+        rm -f SharpTimer-linux.zip
     - name: Package as ZIP
       run: |
         cd build
