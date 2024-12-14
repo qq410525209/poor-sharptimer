@@ -32,13 +32,14 @@ jobs:
           --self-contained false \
           --output build/addons/counterstrikesharp/plugins/SharpTimer
 
-
-            
-        
     - name: Copy additional files
       run: |
-        cp -r lang build/lang
-        cp -r cfg/SharpTimer build/cfg/SharpTimer
+        mkdir -p build/lang
+        mkdir -p build/cfg/SharpTimer
+        mkdir -p build/addons/counterstrikesharp/plugins/SharpTimer
+        cp -r lang/* build/addons/counterstrikesharp/plugins/SharpTimer/lang/
+        cp -r cfg/SharpTimer/* build/cfg/SharpTimer/
+
         
     - name: Clean up old artifacts
       run: |
