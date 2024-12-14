@@ -402,10 +402,10 @@ namespace SharpTimer
                 player.CommitSuicide(false, true);
                 player.ChangeTeam(CsTeam.CounterTerrorist);
             }
-            else if (player.Team == CsTeam.CounterTerrorist || player.Team == CsTeam.Terrorist || player.Team == CsTeam.None)
+            else if (player.Team != CsTeam.Spectator)
             {
                 player.ChangeTeam(CsTeam.Spectator);
-                player.PrintToChat("You have been moved to Spectator.");
+                player.PrintToChat($"{Localizer["prefix"]} You have been moved to Spectator.");
             }
         }
 
@@ -560,31 +560,10 @@ namespace SharpTimer
         [CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
         public void ToggleWeaponCommand(CCSPlayerController? player, CommandInfo command)
         {
-            if (player == null || !IsAllowedPlayer(player))
+            if (player == null || !IsAllowedPlayer(player) || player.Team == CsTeam.Spectator)
                 return;
 
-            if (player.Team == CsTeam.None || player.Team == CsTeam.Spectator)
-                return;
-
-            var hasWeapons = player.PlayerPawn?.Value?.WeaponServices?.MyWeapons?.Count > 0;
-
-            if (hasWeapons == true)
-            {
-                player.RemoveWeapons();
-            }
-            else
-            {
-                if (player.Team == CsTeam.Terrorist)
-                {
-                    player.GiveNamedItem("weapon_knife_t");
-                    player.GiveNamedItem("weapon_glock");
-                }
-                else if (player.Team == CsTeam.CounterTerrorist)
-                {
-                    player.GiveNamedItem("weapon_knife");
-                    player.GiveNamedItem("weapon_usp_silencer");
-                }
-            }
+            playerTimers[player.Slot].HideWeapon = !playerTimers[player.Slot].HideWeapon;
         }
 
         [ConsoleCommand("css_fov", "Sets the player's FOV")]
@@ -1361,6 +1340,7 @@ namespace SharpTimer
                     case 8:
                     case 9:
                     case 10:
+                    case 11:
                         setStyle(player, desiredStyleInt);
                         PrintToChat(player, Localizer["style_set", GetNamedStyle(desiredStyleInt)]);
                         break;
@@ -1430,6 +1410,11 @@ namespace SharpTimer
                     case "ff":
                         setStyle(player, 10);
                         PrintToChat(player, Localizer["style_set", GetNamedStyle(10)]);
+                        break;
+                    case "parachute":
+                    case "para":
+                        setStyle(player, 11);
+                        PrintToChat(player, Localizer["style_set", GetNamedStyle(11)]);
                         break;
                     default:
                         PrintToChat(player, Localizer["style_not_found", styleLowerCase]);

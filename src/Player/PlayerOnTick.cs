@@ -61,6 +61,7 @@ namespace SharpTimer
                         int timerTicks = playerTimer.TimerTicks;
                         PlayerButtons? playerButtons = player.Buttons;
                         Vector playerSpeed = player.PlayerPawn!.Value!.AbsVelocity;
+                        var hasWeapons = player.PlayerPawn?.Value?.WeaponServices?.MyWeapons?.Count > 0;
                         
                         if(connectedAFKPlayers.ContainsKey(player.Slot))
                         {
@@ -106,6 +107,33 @@ namespace SharpTimer
                         else if (isBonusTimerRunning)
                         {
                             playerTimer.BonusTimerTicks++;
+                        }
+
+                        if (playerTimer.HideWeapon)
+                        {
+                            if (hasWeapons)
+                            {
+                                player.RemoveWeapons();
+                                playerTimer.GivenWeapon = false;
+                            }
+                        }
+                        else
+                        {
+                            if (!hasWeapons && !playerTimer.GivenWeapon)
+                            {
+                                if (player.Team == CsTeam.Terrorist)
+                                {
+                                    player.GiveNamedItem("weapon_knife_t");
+                                    player.GiveNamedItem("weapon_glock");
+                                }
+                                else if (player.Team == CsTeam.CounterTerrorist)
+                                {
+                                    player.GiveNamedItem("weapon_knife");
+                                    player.GiveNamedItem("weapon_usp_silencer");
+                                }
+
+                                playerTimer.GivenWeapon = true;
+                            }
                         }
 
                         if (playerTimer.MovementService!.OldJumpPressed == true) playerTimer.MovementService.OldJumpPressed = false;
