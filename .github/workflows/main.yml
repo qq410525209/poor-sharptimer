@@ -1,0 +1,38 @@
+name: Build and Test
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 8.0.x
+
+    - name: Restore dependencies
+      run: dotnet restore SharpTimer.csproj
+
+    - name: Build
+      run: dotnet build SharpTimer.csproj --configuration Release --no-restore
+
+    - name: Test
+      run: dotnet test SharpTimer.csproj --configuration Release --no-build --verbosity normal
+
+    - name: Publish artifacts
+      if: success()
+      run: |
+        mkdir -p artifact
+        dotnet publish SharpTimer.csproj --configuration Release --output artifact
+        echo "Build artifacts published to the 'artifact' folder."
