@@ -34,11 +34,11 @@ jobs:
     - name: Package as ZIP
       run: |
         cd build
-        zip -r ../../SharpTimer.zip .
+        zip -r ../SharpTimer-linux.zip .
       shell: bash
 
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
-        name: SharpTimer
-        path: SharpTimer.zip
+        name: SharpTimer-linux
+        path: SharpTimer-linux.zip
