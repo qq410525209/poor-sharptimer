@@ -4,9 +4,11 @@ on:
   push:
     branches:
       - main
+      - dev
   pull_request:
     branches:
       - main
+      - dev
 
 jobs:
   build:
@@ -32,29 +34,17 @@ jobs:
         cp -r lang build/lang
 
     - name: Clean up old artifacts
-      run: rm -f SharpTimer.zip
+      run: |
+        rm -f SharpTimer-linux.zip
 
     - name: Package as ZIP
       run: |
         cd build
-        zip -r ../SharpTimer.zip .
-      shell: bash  # 使用 bash 作为默认的 shell
-      env:
-        DOTNET_ROOT: /usr/share/dotnet
-
-    - name: Generate artifact name based on SHA256 hash
-      run: |
-        SHA256_HASH=$(sha256sum SharpTimer.zip | cut -d ' ' -f 1)
-        mv SharpTimer.zip "SharpTimer-${SHA256_HASH}.zip"
+        zip -r ../SharpTimer-${{ github.ref_name }}.zip .
+      shell: bash
 
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
-        name: SharpTimer
-        path: SharpTimer-${{ steps.generate-artifact-name.outputs.sha256 }}.zip
-        if-no-files-found: warn
-        compression-level: 6
-        overwrite: false
-        include-hidden-files: false
-      env:
-        DOTNET_ROOT: /usr/share/dotnet
+        name: SharpTimer-${{ github.ref_name }}
+        path: SharpTimer-${{ github.ref_name }}.zip
