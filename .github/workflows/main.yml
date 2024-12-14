@@ -1,12 +1,11 @@
-name: Build and Package
+name: Build 和 Package
 
 on:
   push:
     branches:
-      - main
+      - dev
   pull_request:
     branches:
-      - main
       - dev
 
 jobs:
