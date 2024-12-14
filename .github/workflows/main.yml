@@ -38,7 +38,9 @@ jobs:
       run: |
         cd build
         zip -r ../SharpTimer.zip .
-      shell: /usr/bin/bash --noprofile --norc -e -o pipefail
+      shell: bash  # 使用 bash 作为默认的 shell
+      env:
+        DOTNET_ROOT: /usr/share/dotnet
 
     - name: Generate artifact name based on SHA256 hash
       run: |
