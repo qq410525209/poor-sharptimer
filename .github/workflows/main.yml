@@ -24,8 +24,14 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore SharpTimer.csproj
 
-      - name: Build
-      run: dotnet publish SharpTimer.csproj --configuration Release --runtime linux-x64 --self-contained false --output build/addons/counterstrikesharp/plugins/SharpTimer
+    - name: Build
+      run: |
+        dotnet publish SharpTimer.csproj \
+          --configuration Release \
+          --runtime linux-x64 \
+          --self-contained false \
+          --output build/addons/counterstrikesharp/plugins/SharpTimer
+
 
             
         
