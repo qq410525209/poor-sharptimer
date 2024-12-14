@@ -37,6 +37,7 @@ jobs:
         mkdir -p build/lang
         mkdir -p build/cfg/SharpTimer
         mkdir -p build/addons/counterstrikesharp/plugins/SharpTimer
+        mkdir -p build/addons/counterstrikesharp/plugins/SharpTimer/lang
         cp -r lang/* build/addons/counterstrikesharp/plugins/SharpTimer/lang/
         cp -r cfg/SharpTimer/* build/cfg/SharpTimer/
 
