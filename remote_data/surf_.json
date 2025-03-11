@@ -3,6 +3,42 @@
         "Tier": 2,
         "Type": "Staged"
     },
+    "surf_flow_p": {
+        "Tier": 2,
+        "Type": "Linear"
+    },
+    "surf_calycate2_cs2": {
+        "Tier": 1,
+        "Type": "Linear"
+    },
+    "surf_quark_p": {
+        "Tier": 1,
+        "Type": "Staged"
+    },
+    "surf_zor_p": {
+        "Tier": 2,
+        "Type": "Linear"
+    },
+    "surf_impact_tnn_p": {
+        "Tier": 1,
+        "Type": "Staged"
+    },
+    "surf_calycate_cs2": {
+        "Tier": 1,
+        "Type": "Linear"
+    },
+    "surf_rezity_p": {
+        "Tier": 2,
+        "Type": "Linear"
+    },
+    "surf_aweles_inferno_fix_p": {
+        "Tier": 1,
+        "Type": "Staged"
+    },
+    "surf_riva_p": {
+        "Tier": 2,
+        "Type": "Linear"
+    },
     "surf_race": {
         "Tier": 1,
         "Type": "Staged"
@@ -379,10 +415,6 @@
         "Tier": 1,
         "Type": "Staged"
     },
-    "surf_prisma": {
-        "Tier": 1,
-        "Type": "Hybrid"
-    },
     "surf_rebel_resistance": {
         "Tier": 1,
         "Type": "Linear"
@@ -399,12 +431,16 @@
         "Tier": 1,
         "Type": "Hybrid"
     },
+    "surf_southpark": {
+        "Tier": 1,
+        "Type": "Staged"
+    },
     "surf_summit": {
         "Tier": 1,
         "Type": "Linear"
     },
-    "surf_sundown": {
-        "Tier": 1,
+    "surf_sundown_njv": {
+        "Tier": 2,
         "Type": "Linear"
     },
     "surf_tendies": {
@@ -561,6 +597,10 @@
     },
     "surf_commune": {
         "Tier": 2,
+        "Type": "Staged"
+    },
+    "surf_colum_2": {
+        "Tier": 1,
         "Type": "Staged"
     },
     "surf_crzyfrog_reloaded": {
@@ -1636,7 +1676,7 @@
         "Type": "Linear"
     },
     "surf_oasis": {
-        "Tier": 3,
+        "Tier": 2,
         "Type": "Staged"
     },
     "surf_ofrenda": {
@@ -2572,6 +2612,10 @@
         "Type": "Linear"
     },
     "surf_paradigm": {
+        "Tier": 2,
+        "Type": "Staged"
+    },
+    "surf_paradise": {
         "Tier": 2,
         "Type": "Staged"
     },
