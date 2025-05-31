@@ -26,19 +26,26 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore SharpTimer.csproj
 
-    - name: Build
+        - name: Build
       run: dotnet publish SharpTimer.csproj --configuration Release --runtime linux-x64 --self-contained false --output build
 
     - name: Copy additional files
       run: |
         cp -r lang build/lang
+
+    - name: Prepare packaging folder
+      run: |
+        mkdir -p package/SharpTimer
+        cp -r build/* package/SharpTimer/
+
     - name: Clean up old artifacts
       run: |
-        rm -f SharpTimer-linux.zip
+        rm -f SharpTimer-*.zip
+
     - name: Package as ZIP
       run: |
-        cd build
-        zip -r ../SharpTimer-${{ github.ref_name }}.zip .
+        cd package
+        zip -r ../SharpTimer-${{ github.ref_name }}.zip SharpTimer
       shell: bash
 
     - name: Upload artifact
