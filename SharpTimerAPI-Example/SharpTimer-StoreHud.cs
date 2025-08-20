@@ -11,9 +11,9 @@ using CS2MenuManager.API.Interface;
 
 public class SharpTimer_Example : BasePlugin
 {
-    public override string ModuleName => "SharpTimer HUD协调器";
+    public override string ModuleName => "SharpTimer 商店兼容";
     public override string ModuleVersion => "1.0.0";
-    public override string ModuleAuthor => "AI Assistant";
+    public override string ModuleAuthor => "小彩旗";
 
     public ISharpTimerEventSender? eventSender { get; set; }
     public ISharpTimerManager? timerManager { get; set; }
