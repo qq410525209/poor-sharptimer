@@ -25,38 +25,6 @@ public class SharpTimer_Example : BasePlugin
     // 存储每个玩家的原始HUD设置
     private Dictionary<ulong, bool> playerOriginalHudSettings = new();
 
-    public override void Load(bool hotReload)
-    {
-        AddCommand("css_test_event", "测试事件监听器", Command_TestEvent);
-        AddCommand("css_hud_coordinator", "HUD协调器状态", Command_HudCoordinatorStatus);
-
-        RegisterEventHandler<EventPlayerDeath>(EventPlayerDeath);
-        
-        // 注册玩家连接事件
-        RegisterEventHandler<EventPlayerConnect>(EventPlayerConnect);
-        RegisterEventHandler<EventPlayerDisconnect>(EventPlayerDisconnect);
-        
-        Logger.LogInformation("SharpTimer HUD协调器已加载！");
-    }
-
-    public override void Unload(bool hotReload)
-    {
-        RemoveCommand("css_test_event", Command_TestEvent);
-        RemoveCommand("css_hud_coordinator", Command_HudCoordinatorStatus);
-
-        // 清理事件监听器
-        if (eventSender != null)
-        {
-            eventSender.STEventSender -= OnSharpTimerEvent;
-        }
-
-        DeregisterEventHandler<EventPlayerDeath>(EventPlayerDeath);
-        DeregisterEventHandler<EventPlayerConnect>(EventPlayerConnect);
-        DeregisterEventHandler<EventPlayerDisconnect>(EventPlayerDisconnect);
-        
-        Logger.LogInformation("SharpTimer HUD协调器已卸载！");
-    }
-
     public override void OnAllPluginsLoaded(bool hotReload)
     {
         // 延迟加载API，确保SharpTimer完全初始化
@@ -217,7 +185,7 @@ public class SharpTimer_Example : BasePlugin
             Logger.LogDebug($"尝试禁用玩家 {player.PlayerName} 的SharpTimer HUD");
             
             // 向玩家发送消息，告知HUD已被协调器禁用
-            player.PrintToChat($" {ChatColors.LightPurple}[HUD协调器] {ChatColors.Grey}检测到商店菜单，已自动禁用计时器HUD");
+            // player.PrintToChat($" {ChatColors.LightPurple}[HUD协调器] {ChatColors.Grey}检测到商店菜单，已自动禁用计时器HUD");
         }
         catch (Exception ex)
         {
@@ -233,7 +201,7 @@ public class SharpTimer_Example : BasePlugin
             Logger.LogDebug($"尝试启用玩家 {player.PlayerName} 的SharpTimer HUD");
             
             // 向玩家发送消息，告知HUD已被协调器启用
-            player.PrintToChat($" {ChatColors.LightPurple}[HUD协调器] {ChatColors.Grey}商店菜单已关闭，已自动恢复计时器HUD");
+            // player.PrintToChat($" {ChatColors.LightPurple}[HUD协调器] {ChatColors.Grey}商店菜单已关闭，已自动恢复计时器HUD");
         }
         catch (Exception ex)
         {
@@ -241,129 +209,7 @@ public class SharpTimer_Example : BasePlugin
         }
     }
 
-    public void Command_HudCoordinatorStatus(CCSPlayerController? player, CommandInfo command)
-    {
-        if (player == null)
-            return;
-
-        command.ReplyToCommand($" {ChatColors.LightPurple}[HUD协调器] {ChatColors.Grey}状态信息:");
-        
-        var steamId = player.SteamID;
-        if (playerHudStates.TryGetValue(steamId, out bool hasMenu))
-        {
-            command.ReplyToCommand($" {ChatColors.Grey}当前状态: {(hasMenu ? $"{ChatColors.Red}商店菜单打开中" : $"{ChatColors.Green}正常")}");
-        }
-        else
-        {
-            command.ReplyToCommand($" {ChatColors.Grey}当前状态: {ChatColors.Green}正常");
-        }
-        
-        if (playerOriginalHudSettings.TryGetValue(steamId, out bool originalHud))
-        {
-            command.ReplyToCommand($" {ChatColors.Grey}原始HUD设置: {(originalHud ? $"{ChatColors.Green}启用" : $"{ChatColors.Red}禁用")}");
-        }
-        else
-        {
-            command.ReplyToCommand($" {ChatColors.Grey}原始HUD设置: {ChatColors.Green}启用 (默认)");
-        }
-        
-        command.ReplyToCommand($" {ChatColors.Grey}协调器状态: {ChatColors.Green}运行中");
-    }
-
-    public HookResult EventPlayerConnect(EventPlayerConnect @event, GameEventInfo gameEventInfo)
-    {
-        var player = @event.Userid;
-        if (player == null || player.IsBot)
-            return HookResult.Continue;
-
-        var steamId = player.SteamID;
-        
-        // 初始化新玩家的HUD状态
-        playerHudStates[steamId] = false;
-        playerOriginalHudSettings[steamId] = true; // 默认启用HUD
-        
-        Logger.LogDebug($"新玩家 {player.PlayerName} 已连接，HUD状态已初始化");
-        
-        return HookResult.Continue;
-    }
-
-    public HookResult EventPlayerDisconnect(EventPlayerDisconnect @event, GameEventInfo gameEventInfo)
-    {
-        var player = @event.Userid;
-        if (player == null || player.IsBot)
-            return HookResult.Continue;
-
-        var steamId = player.SteamID;
-        
-        // 清理玩家数据
-        playerHudStates.Remove(steamId);
-        playerOriginalHudSettings.Remove(steamId);
-        
-        Logger.LogDebug($"玩家 {player.PlayerName} 已断开连接，HUD状态已清理");
-        
-        return HookResult.Continue;
-    }
-
-
-    public void Command_API_GetSR(CCSPlayerController? player, CommandInfo command)
-    {
-        if (player == null)
-            return;
-
-        if (databaseManager == null)
-        {
-            Logger.LogError("Error: ISharpTimerDatabase not loaded! Ensure everything is installed properly.");
-            return;
-        }
-
-        var record = databaseManager.GetSortedRecordsFromDatabase(1, 0, Server.MapName, 0).Result.FirstOrDefault().Value;
-
-        string formattedTime;
-
-        TimeSpan timeSpan = TimeSpan.FromSeconds(record.TimerTicks / 64.0);
-        string milliseconds = $"{record.TimerTicks % 64 * (1000.0 / 64.0):000}";
-        int totalMinutes = (int)timeSpan.TotalMinutes;
-
-        if (totalMinutes >= 60)
-            formattedTime = $"{totalMinutes / 60:D1}:{totalMinutes % 60:D2}:{timeSpan.Seconds:D2}.{milliseconds}";
-        else
-            formattedTime = $"{totalMinutes:D1}:{timeSpan.Seconds:D2}.{milliseconds}";
-
-        command.ReplyToCommand($" {ChatColors.LightPurple}[SharpTimer-Example] {ChatColors.Grey}player: {ChatColors.White}{record.PlayerName} {ChatColors.Grey}has the SR on {ChatColors.White}{Server.MapName} {ChatColors.Grey}with time: {ChatColors.White}{formattedTime}");
-    }
-
-    public void Command_TestEvent(CCSPlayerController? player, CommandInfo command)
-    {
-        if (player == null)
-            return;
-
-        command.ReplyToCommand($" {ChatColors.LightPurple}[Test] {ChatColors.Grey}事件监听器状态检查:");
-        command.ReplyToCommand($" {ChatColors.Grey}eventSender: {(eventSender != null ? "已加载" : "未加载")}");
-        command.ReplyToCommand($" {ChatColors.Grey}timerManager: {(timerManager != null ? "已加载" : "未加载")}");
-        command.ReplyToCommand($" {ChatColors.Grey}databaseManager: {(databaseManager != null ? "已加载" : "未加载")}");
-        
-        if (eventSender != null)
-        {
-            command.ReplyToCommand($" {ChatColors.Green}事件监听器已注册，等待事件触发...");
-        }
-        else
-        {
-            command.ReplyToCommand($" {ChatColors.Red}事件监听器未注册！");
-        }
-    }
-
-    public HookResult EventPlayerDeath(EventPlayerDeath @event, GameEventInfo gameEventInfo)
-    {
-        var player = @event.Userid;
-        if (player == null || player.IsBot)
-            return HookResult.Continue;
-
-        timerManager?.RestartTimer(player);
-
-        player.PrintToChat($" {ChatColors.LightPurple}[SharpTimer-Example] {ChatColors.Red}Timer has been reset, because you died :(");
-
-        return HookResult.Continue;
-    }
+    
 
     public void OnSharpTimerEvent(object? sender, ISharpTimerPlayerEvent e)
     {
