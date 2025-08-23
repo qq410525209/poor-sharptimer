@@ -8,6 +8,7 @@ using SharpTimerAPI;
 using SharpTimerAPI.Events;
 using CS2MenuManager.API.Class;
 using CS2MenuManager.API.Interface;
+// using StoreApi; // 临时注释，等待StoreApi编译完成
 
 public class SharpTimer_Example : BasePlugin
 {
@@ -18,12 +19,45 @@ public class SharpTimer_Example : BasePlugin
     public ISharpTimerEventSender? eventSender { get; set; }
     public ISharpTimerManager? timerManager { get; set; }
     public ISharpTimerDatabase? databaseManager { get; set; }
+    // public IStoreApi? storeApi { get; set; } // 临时注释
 
     // 存储每个玩家的HUD状态
     private Dictionary<ulong, bool> playerHudStates = new();
     
     // 存储每个玩家的原始HUD设置
     private Dictionary<ulong, bool> playerOriginalHudSettings = new();
+
+    // 服务器记录奖励配置
+    private const int SR_REWARD_CREDITS = 5;
+    private bool srRewardEnabled = true;
+
+    public override void Load(bool hotReload)
+    {
+        AddCommand("css_sr_reward", "切换服务器记录奖励功能", Command_ToggleSrReward);
+        AddCommand("css_sr_reward_status", "查看服务器记录奖励状态", Command_SrRewardStatus);
+
+        RegisterEventHandler<EventPlayerConnect>(EventPlayerConnect);
+        RegisterEventHandler<EventPlayerDisconnect>(EventPlayerDisconnect);
+        
+        Logger.LogInformation("SharpTimer 商店兼容插件已加载！");
+    }
+
+    public override void Unload(bool hotReload)
+    {
+        RemoveCommand("css_sr_reward", Command_ToggleSrReward);
+        RemoveCommand("css_sr_reward_status", Command_SrRewardStatus);
+
+        // 清理事件监听器
+        if (eventSender != null)
+        {
+            eventSender.STEventSender -= OnSharpTimerEvent;
+        }
+
+        DeregisterEventHandler<EventPlayerConnect>(EventPlayerConnect);
+        DeregisterEventHandler<EventPlayerDisconnect>(EventPlayerDisconnect);
+        
+        Logger.LogInformation("SharpTimer 商店兼容插件已卸载！");
+    }
 
     public override void OnAllPluginsLoaded(bool hotReload)
     {
@@ -32,7 +66,33 @@ public class SharpTimer_Example : BasePlugin
         
         // 延迟启动HUD协调器
         AddTimer(3.0f, () => StartHudCoordinator());
+        
+        // 延迟加载Store API
+        // AddTimer(4.0f, () => LoadStoreAPI()); // 临时注释
     }
+
+    /*
+    private void LoadStoreAPI()
+    {
+        try
+        {
+            storeApi = IStoreApi.Capability.Get();
+            
+            if (storeApi != null)
+            {
+                Logger.LogInformation("Store API已成功加载！");
+            }
+            else
+            {
+                Logger.LogWarning("Store API未找到，服务器记录奖励功能将不可用");
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError($"加载Store API时发生错误: {ex.Message}");
+        }
+    }
+    */
 
     private void LoadSharpTimerAPI()
     {
@@ -209,7 +269,35 @@ public class SharpTimer_Example : BasePlugin
         }
     }
 
-    
+    // 服务器记录奖励相关命令
+    public void Command_ToggleSrReward(CCSPlayerController? player, CommandInfo command)
+    {
+        if (player == null)
+            return;
+
+        srRewardEnabled = !srRewardEnabled;
+        string status = srRewardEnabled ? "启用" : "禁用";
+        
+        command.ReplyToCommand($" {ChatColors.LightPurple}[服务器记录奖励] {ChatColors.Grey}功能已{(srRewardEnabled ? ChatColors.Green : ChatColors.Red)}{status}");
+        
+        if (player != null)
+        {
+            player.PrintToChat($" {ChatColors.LightPurple}[服务器记录奖励] {ChatColors.Grey}功能已{(srRewardEnabled ? ChatColors.Green : ChatColors.Red)}{status}");
+        }
+        
+        Logger.LogInformation($"服务器记录奖励功能已{status}");
+    }
+
+    public void Command_SrRewardStatus(CCSPlayerController? player, CommandInfo command)
+    {
+        if (player == null)
+            return;
+
+        command.ReplyToCommand($" {ChatColors.LightPurple}[服务器记录奖励] {ChatColors.Grey}状态信息:");
+        command.ReplyToCommand($" {ChatColors.Grey}功能状态: {(srRewardEnabled ? $"{ChatColors.Green}启用" : $"{ChatColors.Red}禁用")}");
+        command.ReplyToCommand($" {ChatColors.Grey}奖励Credits: {ChatColors.Gold}{SR_REWARD_CREDITS}");
+        command.ReplyToCommand($" {ChatColors.Grey}Store API: {ChatColors.Red}未加载 (临时禁用)");
+    }
 
     public void OnSharpTimerEvent(object? sender, ISharpTimerPlayerEvent e)
     {
@@ -229,6 +317,9 @@ public class SharpTimer_Example : BasePlugin
                 if (finishEvent.IsSr)
                 {
                     finishEvent.Player.PrintToChat($" {ChatColors.LightPurple}[SharpTimer-Example] {ChatColors.Gold}🎉 恭喜！这是新的服务器记录！");
+                    
+                    // 处理服务器记录奖励
+                    HandleServerRecordReward(finishEvent.Player);
                 }
                 else if (finishEvent.IsPb)
                 {
@@ -244,5 +335,70 @@ public class SharpTimer_Example : BasePlugin
         {
             Logger.LogInformation($"收到其他类型事件: {e.GetType().Name}");
         }
+    }
+
+    private void HandleServerRecordReward(CCSPlayerController player)
+    {
+        try
+        {
+            if (!srRewardEnabled)
+            {
+                Logger.LogDebug($"服务器记录奖励功能已禁用，跳过奖励");
+                return;
+            }
+
+            // 临时禁用Store API功能
+            Logger.LogWarning($"Store API功能临时禁用，无法给予服务器记录奖励");
+            player.PrintToChat($" {ChatColors.LightPurple}[服务器记录奖励] {ChatColors.Red}⚠️ Store系统功能临时禁用");
+            
+            // 向玩家发送奖励消息（模拟）
+            player.PrintToChat($" {ChatColors.LightPurple}[服务器记录奖励] {ChatColors.Gold}🎁 恭喜获得新的服务器记录！");
+            player.PrintToChat($" {ChatColors.LightPurple}[服务器记录奖励] {ChatColors.Grey}奖励系统暂时不可用，请联系管理员");
+            
+            // 向所有玩家广播
+            Server.PrintToChatAll($" {ChatColors.LightPurple}[服务器记录奖励] {ChatColors.Gold}🎉 {ChatColors.White}{player.PlayerName} {ChatColors.Grey}创造了新的服务器记录！");
+            Server.PrintToChatAll($" {ChatColors.LightPurple}[服务器记录奖励] {ChatColors.Grey}奖励系统暂时不可用");
+            
+            Logger.LogInformation($"玩家 {player.PlayerName} 获得服务器记录，但Store API未加载，无法给予实际奖励");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError($"处理服务器记录奖励时发生错误: {ex.Message}");
+            player.PrintToChat($" {ChatColors.LightPurple}[服务器记录奖励] {ChatColors.Red}⚠️ 奖励发放出错，请联系管理员");
+        }
+    }
+
+    public HookResult EventPlayerConnect(EventPlayerConnect @event, GameEventInfo gameEventInfo)
+    {
+        var player = @event.Userid;
+        if (player == null || player.IsBot)
+            return HookResult.Continue;
+
+        var steamId = player.SteamID;
+        
+        // 初始化新玩家的HUD状态
+        playerHudStates[steamId] = false;
+        playerOriginalHudSettings[steamId] = true; // 默认启用HUD
+        
+        Logger.LogDebug($"新玩家 {player.PlayerName} 已连接，HUD状态已初始化");
+        
+        return HookResult.Continue;
+    }
+
+    public HookResult EventPlayerDisconnect(EventPlayerDisconnect @event, GameEventInfo gameEventInfo)
+    {
+        var player = @event.Userid;
+        if (player == null || player.IsBot)
+            return HookResult.Continue;
+
+        var steamId = player.SteamID;
+        
+        // 清理玩家数据
+        playerHudStates.Remove(steamId);
+        playerOriginalHudSettings.Remove(steamId);
+        
+        Logger.LogDebug($"玩家 {player.PlayerName} 已断开连接，HUD状态已初始化");
+        
+        return HookResult.Continue;
     }
 }

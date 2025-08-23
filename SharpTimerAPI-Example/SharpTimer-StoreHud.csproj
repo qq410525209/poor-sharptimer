@@ -12,6 +12,23 @@
         <PackageReference Include="CounterStrikeSharp.API" Version="*" />
         <PackageReference Include="CS2MenuManager" Version="1.0.39" />
         <ProjectReference Include="..\SharpTimerAPI\SharpTimerAPI.csproj" />
+        <ProjectReference Include="..\StoreApi\StoreApi.csproj" />
+    </ItemGroup>
+
+    <!-- 确保StoreApi先编译 -->
+    <ItemGroup>
+        <ProjectReference Update="..\StoreApi\StoreApi.csproj">
+            <Private>false</Private>
+            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+            <CopyLocalSatelliteAssemblies>false</CopyLocalSatelliteAssemblies>
+        </ProjectReference>
+    </ItemGroup>
+
+    <!-- 添加StoreApi的输出路径引用 -->
+    <ItemGroup>
+        <Reference Include="StoreApi">
+            <HintPath>..\BuildOutput\shared\StoreApi\StoreApi.dll</HintPath>
+        </Reference>
     </ItemGroup>
 
 	<Target Name="ExcludeStoreApiFiles" AfterTargets="Build">
